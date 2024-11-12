@@ -43,6 +43,23 @@ def calculate_psnr_ssim(original, filtered):
     ssim_value, _ = structural_similarity(original, filtered, full=True, win_size=3) 
     return psnr_value, ssim_value
 # Các hàm xử lý ảnh từ Notebook lab 2
+
+def robert_edge_detection(image):
+    # Convert image to grayscale
+    gray_image = np.array(image.convert("L"), dtype=np.float32)
+    gx = np.zeros_like(gray_image)
+    gy = np.zeros_like(gray_image)
+    roberts_edges = np.zeros_like(gray_image)
+
+    # Apply Robert's Cross Operator
+    for i in range(gray_image.shape[0] - 1):
+        for j in range(gray_image.shape[1] - 1):
+            gx[i, j] = gray_image[i, j] - gray_image[i + 1, j + 1]
+            gy[i, j] = gray_image[i + 1, j] - gray_image[i, j + 1]
+            roberts_edges[i, j] = min(255, np.sqrt(gx[i, j] ** 2 + gy[i, j] ** 2))
+
+    return roberts_edges.astype(np.uint8)
+
 def prewitt_edge_detection(image):
     img = image
     img = img.convert("L")
@@ -105,6 +122,10 @@ class ImageProcessingApp:
         self.tabControl.add(self.lab1_tab, text="LAB1")
         self.tabControl.pack(expand=1, fill="both")
         # Tab LAB2
+
+self.robert_edge_detection_button = tk.Button(self.lab2_tab, text="Robert Edge Detection", command=self.apply_robert_edge_detection)
+self.robert_edge_detection_button.grid(row=9, column=2, sticky="ew", padx=5, pady=5)
+
         self.lab2_tab = ttk.Frame(self.tabControl)
         self.tabControl.add(self.lab2_tab, text="LAB2")
         self.tabControl.pack(expand=1, fill="both")
@@ -494,7 +515,15 @@ class ImageProcessingApp:
             # Hiển thị kết quả ảnh cạnh đã phát hiện
             self.show_image(sobel_edges)
 ################################################################################################################################
-# Khởi chạy giao diện
+
+def apply_robert_edge_detection(self):
+    if self.image_original_lab2 is not None:
+        # Apply Robert's edge detection
+        roberts_edges = robert_edge_detection(self.image_original_lab2)
+        # Display the result
+        self.show_image(roberts_edges)
+
+    # Khởi chạy giao diện
 root = tk.Tk()
 app = ImageProcessingApp(root)
 root.mainloop()
@@ -780,7 +809,15 @@ class ImageProcessingApp:
             img_float = self.processed_img / 255.0  # Normalize to [0, 1] range
             equalized_img = exposure.equalize_hist(img_float) * 255  # Apply equalization and scale back to [0, 255]
             self.show_image(equalized_img.astype(np.uint8))  # Convert to uint8 for display
-# Khởi chạy giao diện
+
+def apply_robert_edge_detection(self):
+    if self.image_original_lab2 is not None:
+        # Apply Robert's edge detection
+        roberts_edges = robert_edge_detection(self.image_original_lab2)
+        # Display the result
+        self.show_image(roberts_edges)
+
+    # Khởi chạy giao diện
 root = tk.Tk()
 app = ImageProcessingApp(root)
 root.mainloop()
