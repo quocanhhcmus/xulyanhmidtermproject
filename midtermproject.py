@@ -122,10 +122,6 @@ class ImageProcessingApp:
         self.tabControl.add(self.lab1_tab, text="LAB1")
         self.tabControl.pack(expand=1, fill="both")
         # Tab LAB2
-
-self.robert_edge_detection_button = tk.Button(self.lab2_tab, text="Robert Edge Detection", command=self.apply_robert_edge_detection)
-self.robert_edge_detection_button.grid(row=9, column=2, sticky="ew", padx=5, pady=5)
-
         self.lab2_tab = ttk.Frame(self.tabControl)
         self.tabControl.add(self.lab2_tab, text="LAB2")
         self.tabControl.pack(expand=1, fill="both")
