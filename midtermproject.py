@@ -6,7 +6,8 @@ from skimage.util import random_noise
 from skimage.metrics import peak_signal_noise_ratio, structural_similarity
 from scipy.ndimage import gaussian_filter
 import matplotlib.pyplot as plt
-from skimage import exposure 
+from skimage import exposure
+import cv2
 
 # Các hàm xử lý ảnh từ Notebook lab 1
 def rgb2gray(rgb):
@@ -152,6 +153,11 @@ class ImageProcessingApp:
 
         self.prewitt_edge_detection_button = tk.Button(self.lab2_tab, text="prewitt edge detection", command=self.apply_prewitt_edge_detection)
         self.prewitt_edge_detection_button.grid(row=3, column=2, sticky="ew", padx=5, pady=5)
+        
+        self.prewitt_edge_detection_button = tk.Button(self.lab2_tab, text="Add noise and Detect Canny", command=self.apply_add_noise_and_detect_canny)
+        self.prewitt_edge_detection_button.grid(row=4, column=2, sticky="ew", padx=5, pady=5)
+
+
     ################################################################################################################################
 
     #Các Hàm con sử dụng trong các lab
@@ -389,6 +395,23 @@ class ImageProcessingApp:
             gx, gy, prewitt_edges = prewitt_edge_detection(self.image_original_lab2)
             # Hiển thị kết quả ảnh cạnh đã phát hiện bằng Prewitt
             self.show_image(prewitt_edges)
+    def apply_add_noise_and_detect_canny(self):
+        if self.image_original_lab2 is not None:
+            # Thêm nhiễu muối tiêu
+            img_arr = np.array(self.image_original_lab2)
+            sp_img = random_noise(img_arr, mode='s&p', amount=0.03)
+            # Thêm nhiễu Gauss
+            gauss_img = random_noise(sp_img, mode='gaussian', mean=0, var=0.02)
+            img_eq = np.rint(255 * exposure.equalize_hist(gauss_img, nbins=256)).astype(np.uint8)
+            # Loại bỏ nhiễu bằng bộ lọc trung bình
+            remove_noise1 = mean_filter(img_eq,3)
+            remove_noise2 = gaussian_filter(remove_noise1,sigma=2, radius=2)
+            # Loại bỏ nhiễu bằng bộ lọc Gauss
+            remove_noise2 = gaussian_filter(remove_noise1, sigma=2, radius=2)
+            aff = Image.fromarray((remove_noise2 * 255).astype(np.uint8))  # Scale to 0-255
+            canny_edge = cv2.Canny(np.array(aff), 20, 70)
+            self.show_image(canny_edge)  # hiển thị ảnh
+
 ################################################################################################################################
 # Khởi chạy giao diện
 root = tk.Tk()
