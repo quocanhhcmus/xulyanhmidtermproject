@@ -47,6 +47,13 @@ def prewitt_edge_detection(image):
             img_final[i, j] =min(255, np.sqrt(gx[i, j]**2 + gy[i, j]**2))
     return gx,gy,img_final
 
+def canny_edge_detection(image, threshold1, threshold2):
+    # Convert image to grayscale
+    gray_image = cv2.cvtColor(np.array(image), cv2.COLOR_RGB2GRAY)
+    # Apply Canny Edge Detection
+    edges = cv2.Canny(gray_image, threshold1, threshold2)
+    return edges
+
 # Tạo giao diện Tkinter
 class ImageProcessingApp:
     def __init__(self, root):
@@ -133,6 +140,8 @@ class ImageProcessingApp:
         
         self.gaussian_noise_button = tk.Button(self.lab1_tab, text="Add Gaussian Noise", command=self.add_gaussian_noise)
         self.gaussian_noise_button.grid(row=15, column=2, sticky="ew", padx=5, pady=5)
+
+
     ## biến lab 1
         self.original_img = None
         self.processed_img = None
@@ -152,12 +161,26 @@ class ImageProcessingApp:
         self.img_button.grid(row=0, column=2, padx=5, pady=5)
 
         self.prewitt_edge_detection_button = tk.Button(self.lab2_tab, text="prewitt edge detection", command=self.apply_prewitt_edge_detection)
-        self.prewitt_edge_detection_button.grid(row=3, column=2, sticky="ew", padx=5, pady=5)
+        self.prewitt_edge_detection_button.grid(row=5, column=2, sticky="ew", padx=5, pady=5)
         
         self.prewitt_edge_detection_button = tk.Button(self.lab2_tab, text="Add noise and Detect Canny", command=self.apply_add_noise_and_detect_canny)
-        self.prewitt_edge_detection_button.grid(row=4, column=2, sticky="ew", padx=5, pady=5)
+        self.prewitt_edge_detection_button.grid(row=6, column=2, sticky="ew", padx=5, pady=5)
 
+        self.prewitt_edge_detection_button = tk.Button(self.lab2_tab, text="Canny Edge Detection", command=self.apply_canny_edge_detection)
+        self.prewitt_edge_detection_button.grid(row=7, column=2, sticky="ew", padx=5, pady=5)
 
+        #chọn ngưỡng cho canny
+        #Entry for threshold1
+        self.threshold1_label = tk.Label(self.lab2_tab, text="Threshold low for canny:")
+        self.threshold1_label.grid(row=3, column=2, padx=5, pady=5, sticky="e")
+        self.threshold1_entry = tk.Entry(self.lab2_tab)
+        self.threshold1_entry.grid(row=3, column=3, padx=5, pady=5)
+
+        # Entry for threshold2
+        self.threshold2_label = tk.Label(self.lab2_tab, text="Threshold high for canny:")
+        self.threshold2_label.grid(row=4, column=2, padx=5, pady=5, sticky="e")
+        self.threshold2_entry = tk.Entry(self.lab2_tab)
+        self.threshold2_entry.grid(row=4, column=3, padx=5, pady=5)
     ################################################################################################################################
 
     #Các Hàm con sử dụng trong các lab
@@ -411,7 +434,18 @@ class ImageProcessingApp:
             aff = Image.fromarray((remove_noise2 * 255).astype(np.uint8))  # Scale to 0-255
             canny_edge = cv2.Canny(np.array(aff), 20, 70)
             self.show_image(canny_edge)  # hiển thị ảnh
-
+    def apply_canny_edge_detection(self):
+        if self.image_original_lab2:
+            # Get threshold values from entry boxes, with default values if empty
+            try:
+                threshold1 = int(self.threshold1_entry.get()) if self.threshold1_entry.get() else 100
+                threshold2 = int(self.threshold2_entry.get()) if self.threshold2_entry.get() else 200
+            except ValueError:
+                # Handle invalid input, such as non-integer values
+                messagebox.showerror("Invalid Input", "Please enter valid integers for thresholds.")
+                return
+            edges = canny_edge_detection(self.image_original_lab2, threshold1, threshold2)
+            self.show_image(edges)
 ################################################################################################################################
 # Khởi chạy giao diện
 root = tk.Tk()
